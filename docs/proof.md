@@ -1,6 +1,6 @@
 # Local proof
 
-Captured 2026-09-16T16:12:23.161Z against live Open-Meteo.
+Captured 2026-09-16T18:39:47.667Z against live Open-Meteo.
 
 Target: Berlin `latitude=52.52`, `longitude=13.41`.
 
@@ -18,10 +18,10 @@ Target: Berlin `latitude=52.52`, `longitude=13.41`.
       "timezone_abbreviation": "GMT+2"
     },
     "current": {
-      "time": "2026-09-16T18:00",
-      "temperature_2m": 19,
-      "weather_code": 3,
-      "weather_label": "Overcast",
+      "time": "2026-09-16T20:30",
+      "temperature_2m": 17.2,
+      "weather_code": 80,
+      "weather_label": "Slight rain showers",
       "units": {
         "time": "iso8601",
         "interval": "seconds",
@@ -41,18 +41,18 @@ Target: Berlin `latitude=52.52`, `longitude=13.41`.
         "2026-09-18"
       ],
       "weather_labels": [
-        "Moderate rain",
-        "Overcast",
+        "Slight rain showers",
+        "Slight rain showers",
         "Slight rain showers"
       ],
       "temperature_2m_max": [
         19.6,
-        20.4,
-        19.3
+        19.9,
+        19.5
       ],
       "temperature_2m_min": [
-        15.8,
-        12.3,
+        15.7,
+        12.2,
         13.8
       ]
     }
@@ -67,10 +67,10 @@ Target: Berlin `latitude=52.52`, `longitude=13.41`.
       "timezone_abbreviation": "GMT+2"
     },
     "current": {
-      "time": "2026-09-16T18:00",
-      "temperature_2m": 19,
-      "weather_code": 3,
-      "weather_label": "Overcast",
+      "time": "2026-09-16T20:30",
+      "temperature_2m": 17.2,
+      "weather_code": 80,
+      "weather_label": "Slight rain showers",
       "units": {
         "time": "iso8601",
         "interval": "seconds",
@@ -122,10 +122,10 @@ Target: Berlin `latitude=52.52`, `longitude=13.41`.
       "timezone_abbreviation": "GMT+2"
     },
     "current": {
-      "time": "2026-09-16T18:00",
-      "temperature_2m": 19,
-      "weather_code": 3,
-      "weather_label": "Overcast",
+      "time": "2026-09-16T20:30",
+      "temperature_2m": 17.2,
+      "weather_code": 80,
+      "weather_label": "Slight rain showers",
       "units": {
         "time": "iso8601",
         "interval": "seconds",
