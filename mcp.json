@@ -4,8 +4,7 @@
     "open-meteo": {
       "type": "stdio",
       "command": "node",
-      "args": ["./src/server.js"],
-      "cwd": "${CURSOR_PLUGIN_ROOT}"
+      "args": ["${CURSOR_PLUGIN_ROOT}/src/server.js"]
     }
   }
 }

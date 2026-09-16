@@ -125,7 +125,7 @@ src/cli.js           same client, for humans and proof
 
 v1 is forecast only. No archive, air-quality, or marine endpoints.
 
-`mcp.json` sets `cwd` to `${CURSOR_PLUGIN_ROOT}` because Cursor does not expand the Agent Plugins `${PLUGIN_ROOT}` placeholder. A project `.cursor/mcp.json` should use an absolute path instead, as in the install section.
+`mcp.json` passes `${CURSOR_PLUGIN_ROOT}/src/server.js` to `node` because Cursor does not expand the Agent Plugins `${PLUGIN_ROOT}` placeholder. A project `.cursor/mcp.json` should use an absolute path instead, as in the install section.
 
 ## Attribution
 
