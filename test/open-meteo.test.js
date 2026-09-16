@@ -14,6 +14,7 @@ import {
   DEFAULT_HOURLY,
   MAX_GEOCODE_NAME,
   MAX_TIMEZONE,
+  MAX_VARIABLE_LIST_CHARS,
   MAX_VARIABLES,
 } from "../src/open-meteo.js";
 import { weatherLabel } from "../src/weather-codes.js";
@@ -148,6 +149,26 @@ test("comma-separated variable lists parse and oversize inputs fail locally", ()
   }
   assert.equal(tooMany.status, 400);
   assert.match(tooMany.reason, /at most 50/);
+
+  const commaName = parseForecastQuery(
+    { latitude: 52.52, longitude: 13.41, hourly: ["foo,bar"] },
+    { current: DEFAULT_CURRENT, hourly: DEFAULT_HOURLY, daily: DEFAULT_DAILY },
+  );
+  assert.equal(commaName.ok, false);
+  if (commaName.ok) {
+    return;
+  }
+  assert.match(commaName.reason, /commas or URL delimiters/);
+
+  const tooLong = parseForecastQuery(
+    { latitude: 52.52, longitude: 13.41, hourly: "x".repeat(MAX_VARIABLE_LIST_CHARS + 1) },
+    { current: DEFAULT_CURRENT, hourly: DEFAULT_HOURLY, daily: DEFAULT_DAILY },
+  );
+  assert.equal(tooLong.ok, false);
+  if (tooLong.ok) {
+    return;
+  }
+  assert.match(tooLong.reason, /characters/);
 
   const longZone = parseForecastQuery(
     { latitude: 52.52, longitude: 13.41, timezone: "x".repeat(MAX_TIMEZONE + 1) },

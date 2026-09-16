@@ -49,6 +49,7 @@ async function mcpCall(message, timeoutMs = 20_000) {
     });
 
   try {
+    const initPending = read();
     send({
       jsonrpc: "2.0",
       id: 1,
@@ -59,10 +60,11 @@ async function mcpCall(message, timeoutMs = 20_000) {
         clientInfo: { name: "open-meteo-proof", version: "1.0.0" },
       },
     });
-    const init = await read();
+    const init = await initPending;
+    const responsePending = read();
     send({ jsonrpc: "2.0", method: "notifications/initialized" });
     send(message);
-    const response = await read();
+    const response = await responsePending;
     return { init, response, stderr: stderr.join("") };
   } finally {
     child.kill("SIGTERM");

@@ -1,6 +1,6 @@
 # Local proof
 
-Captured 2026-09-16T20:08:49.328Z against live Open-Meteo.
+Captured 2026-09-16T20:14:31.915Z against live Open-Meteo.
 
 Target: Berlin `latitude=52.52`, `longitude=13.41`.
 

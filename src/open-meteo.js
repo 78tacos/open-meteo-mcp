@@ -109,6 +109,12 @@ function boundedVariableParts(parts) {
     return { ok: false, reason: `variable lists must have at most ${MAX_VARIABLES} names` };
   }
   for (const part of parts) {
+    if (/[,&=?#\s]/.test(part)) {
+      return {
+        ok: false,
+        reason: "variable names must not contain commas or URL delimiters",
+      };
+    }
     if (part.length > MAX_VARIABLE_NAME) {
       return {
         ok: false,
@@ -130,7 +136,10 @@ function normalizeVariableList(value, fallback) {
   }
   if (typeof value === "string") {
     if (value.length > MAX_VARIABLE_LIST_CHARS) {
-      return { ok: false, reason: `variable lists must have at most ${MAX_VARIABLES} names` };
+      return {
+        ok: false,
+        reason: `variable lists must be at most ${MAX_VARIABLE_LIST_CHARS} characters`,
+      };
     }
     const parts = value
       .split(",")
