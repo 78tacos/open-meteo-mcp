@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "open-meteo",
+  "version": "1.0.0",
+  "description": "Open-Meteo weather forecast tools for agents: current conditions, hourly and daily forecast, and place-name geocoding.",
+  "author": {
+    "name": "78tacos",
+    "url": "https://github.com/78tacos"
+  },
+  "homepage": "https://github.com/78tacos/open-meteo-mcp",
+  "repository": "https://github.com/78tacos/open-meteo-mcp",
+  "license": "MIT",
+  "keywords": ["weather", "forecast", "open-meteo", "mcp"]
+}

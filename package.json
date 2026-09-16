@@ -1,0 +1,20 @@
+{
+  "name": "open-meteo-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "Cursor Agent Plugin wrapping the Open-Meteo forecast API",
+  "engines": {
+    "node": ">=18.18"
+  },
+  "bin": {
+    "open-meteo-mcp": "./src/server.js",
+    "open-meteo": "./src/cli.js"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test test/*.test.js",
+    "proof": "node scripts/proof.js"
+  }
+}
