@@ -12,6 +12,6 @@ Use this skill when the user wants current conditions, not a multi-day compariso
 1. If the user gave a place name, call `geocode_location` with that name. Pick the match that fits the country or region they mentioned. If several countries match and they did not say which, ask once.
 2. If they already gave coordinates, skip geocoding.
 3. Call `get_current_weather` with `latitude` and `longitude`.
-4. Answer from the tool payload. Use `weather_label` next to `weather_code`. Quote temperature and wind with the unit strings from `current.units`. Do not invent a station or a value the payload omitted.
+4. Answer from the tool payload. Use `forecast.current.data.weather_label` next to `forecast.current.data.values.weather_code`. Quote temperature and wind with the unit strings from `forecast.current.units`. Do not invent a station or a value the payload omitted.
 
 Do not guess lat/lon. Do not call archive, air-quality, or marine APIs. This plugin is forecast v1 only.

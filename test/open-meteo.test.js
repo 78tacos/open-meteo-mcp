@@ -56,6 +56,28 @@ test("parseForecastQuery fills v1 defaults and rejects a bad latitude", () => {
   }
   assert.equal(bad.status, 400);
   assert.match(bad.reason, /latitude/);
+
+  const fromCli = parseForecastQuery(
+    { latitude: "52.52", longitude: "13.41" },
+    { current: DEFAULT_CURRENT, hourly: DEFAULT_HOURLY, daily: DEFAULT_DAILY },
+  );
+  assert.equal(fromCli.ok, true);
+  if (fromCli.ok) {
+    assert.equal(fromCli.query.latitude, 52.52);
+    assert.equal(fromCli.query.longitude, 13.41);
+  }
+
+  const nullLat = parseForecastQuery(
+    { latitude: null, longitude: 13.41 },
+    { current: DEFAULT_CURRENT, hourly: DEFAULT_HOURLY, daily: DEFAULT_DAILY },
+  );
+  assert.equal(nullLat.ok, false);
+
+  const boolDays = parseForecastQuery(
+    { latitude: 52.52, longitude: 13.41, forecast_days: true },
+    { current: DEFAULT_CURRENT, hourly: DEFAULT_HOURLY, daily: DEFAULT_DAILY },
+  );
+  assert.equal(boolDays.ok, false);
 });
 
 test("empty variable lists omit that Open-Meteo block", () => {

@@ -177,7 +177,18 @@ function normalizeVariableList(value, fallback) {
  * @returns {{ ok: true, n: number } | { ok: false, reason: string }}
  */
 function finiteNumber(value, field, min, max) {
-  const n = typeof value === "number" ? value : Number(value);
+  let n;
+  if (typeof value === "number") {
+    n = value;
+  } else if (typeof value === "string" && value.trim() !== "") {
+    const trimmed = value.trim();
+    if (!/^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/.test(trimmed)) {
+      return { ok: false, reason: `${field} must be a finite number` };
+    }
+    n = Number(trimmed);
+  } else {
+    return { ok: false, reason: `${field} must be a finite number` };
+  }
   if (!Number.isFinite(n)) {
     return { ok: false, reason: `${field} must be a finite number` };
   }
