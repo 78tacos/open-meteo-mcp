@@ -14,7 +14,7 @@
   },
   "scripts": {
     "start": "node src/server.js",
-    "test": "node --test test/*.test.js",
+    "test": "node --test test/mcp.test.js test/open-meteo.test.js",
     "proof": "node scripts/proof.js"
   }
 }

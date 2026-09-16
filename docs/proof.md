@@ -1,6 +1,6 @@
 # Local proof
 
-Captured 2026-09-16T20:26:03.332Z against live Open-Meteo.
+Captured 2026-09-16T20:30:57.460Z against live Open-Meteo.
 
 Target: Berlin `latitude=52.52`, `longitude=13.41`.
 
@@ -18,8 +18,8 @@ Target: Berlin `latitude=52.52`, `longitude=13.41`.
       "timezone_abbreviation": "GMT+2"
     },
     "current": {
-      "time": "2026-09-16T22:15",
-      "temperature_2m": 16.6,
+      "time": "2026-09-16T22:30",
+      "temperature_2m": 16.3,
       "weather_code": 3,
       "weather_label": "Overcast",
       "units": {
@@ -67,8 +67,8 @@ Target: Berlin `latitude=52.52`, `longitude=13.41`.
       "timezone_abbreviation": "GMT+2"
     },
     "current": {
-      "time": "2026-09-16T22:15",
-      "temperature_2m": 16.6,
+      "time": "2026-09-16T22:30",
+      "temperature_2m": 16.3,
       "weather_code": 3,
       "weather_label": "Overcast",
       "units": {
@@ -122,8 +122,8 @@ Target: Berlin `latitude=52.52`, `longitude=13.41`.
       "timezone_abbreviation": "GMT+2"
     },
     "current": {
-      "time": "2026-09-16T22:15",
-      "temperature_2m": 16.6,
+      "time": "2026-09-16T22:30",
+      "temperature_2m": 16.3,
       "weather_code": 3,
       "weather_label": "Overcast",
       "units": {
