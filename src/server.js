@@ -37,12 +37,15 @@ async function handleMessage(msg) {
   if (request.jsonrpc !== "2.0") {
     return failure(request.id ?? null, -32600, "invalid JSON-RPC version");
   }
-  if (typeof request.method !== "string") {
-    return null;
-  }
 
   const id = request.id;
   const isNotification = id === undefined;
+  if (typeof request.method !== "string") {
+    if (isNotification) {
+      return null;
+    }
+    return failure(id, -32600, "invalid request");
+  }
 
   switch (request.method) {
     case "initialize": {
@@ -153,6 +156,12 @@ async function onLine(line) {
 }
 
 function start() {
+  if (process.stdin.isTTY) {
+    process.stderr.write(
+      "open-meteo-mcp is an MCP stdio server. Pipe JSON-RPC on stdin, or run: node src/cli.js --help\n",
+    );
+    process.exit(2);
+  }
   const rl = createInterface({ input: process.stdin, crlfDelay: Infinity });
   rl.on("line", (line) => {
     chain = chain.then(() => onLine(line)).catch((err) => {

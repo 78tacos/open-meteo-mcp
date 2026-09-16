@@ -54,7 +54,7 @@ npm run proof
 
 `npm test` covers query parsing, Open-Meteo JSON mapping, WMO labels, and the MCP `initialize` / `tools/list` handshake. `npm run proof` calls live Open-Meteo for Berlin (52.52, 13.41) through the client and through MCP `tools/call`, then writes [docs/proof.md](docs/proof.md).
 
-`npm start` (or `node src/server.js`) speaks MCP on stdio. Do not type into that process. Drive it with a client or the proof script.
+`npm start` (or `node src/server.js`) speaks MCP on stdio. Do not type into that process. If stdin is a terminal, the server prints a hint on stderr and exits. Drive it with a client or the proof script.
 
 ## Tools
 
@@ -72,7 +72,7 @@ If you omit variable lists, v1 sends:
 - hourly: `temperature_2m,precipitation_probability,precipitation,weather_code,wind_speed_10m`
 - daily: `weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max`
 
-Pass `[]` for `current`, `hourly`, or `daily` to drop that block from the request.
+Pass `[]` or `""` for `current`, `hourly`, or `daily` to drop that block from the request.
 
 Every `weather_code` is labeled with the [Open-Meteo WMO WW table](https://open-meteo.com/en/docs#weather_variable_documentation). Codes outside that table come back as `Unknown WMO weather code N`.
 

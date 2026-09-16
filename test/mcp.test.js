@@ -167,3 +167,42 @@ test("queued line handling writes intact NDJSON for overlapping requests", async
     child.kill("SIGTERM");
   }
 });
+
+test("requests without a method return JSON-RPC invalid request", async () => {
+  const child = spawn(process.execPath, [serverPath], {
+    cwd: root,
+    stdio: ["pipe", "pipe", "pipe"],
+  });
+  try {
+    const pending = readLines(child, 1);
+    child.stdin.write(`${JSON.stringify({ jsonrpc: "2.0", id: 7 })}\n`);
+    const [response] = await pending;
+    assert.equal(response.id, 7);
+    assert.equal(response.error.code, -32600);
+  } finally {
+    child.kill("SIGTERM");
+  }
+});
+
+test("MCP server exits when stdin is a TTY", async () => {
+  const child = spawn(
+    process.execPath,
+    [
+      "--input-type=module",
+      "-e",
+      'Object.defineProperty(process.stdin, "isTTY", { configurable: true, value: true }); await import("./src/server.js");',
+    ],
+    { cwd: root, stdio: ["ignore", "pipe", "pipe"] },
+  );
+  const [code, stderr] = await new Promise((resolve) => {
+    let err = "";
+    child.stderr.on("data", (buf) => {
+      err += buf.toString("utf8");
+    });
+    child.on("close", (exitCode) => {
+      resolve([exitCode, err]);
+    });
+  });
+  assert.equal(code, 2);
+  assert.match(stderr, /MCP stdio server/);
+});

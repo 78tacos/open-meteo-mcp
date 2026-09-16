@@ -9,8 +9,13 @@ import {
   interpretForecastResponse,
   mapForecast,
   parseForecastQuery,
+  DEFAULT_CURRENT,
+  DEFAULT_DAILY,
+  DEFAULT_HOURLY,
+  MAX_GEOCODE_NAME,
+  MAX_TIMEZONE,
+  MAX_VARIABLES,
 } from "../src/open-meteo.js";
-import { DEFAULT_CURRENT, DEFAULT_DAILY, DEFAULT_HOURLY } from "../src/open-meteo.js";
 import { weatherLabel } from "../src/weather-codes.js";
 
 const fixture = JSON.parse(
@@ -116,4 +121,51 @@ test("buildGeocodeUrl requires a name", () => {
   assert.equal(url.searchParams.get("name"), "Berlin");
   assert.equal(url.searchParams.get("count"), "3");
   assert.equal(url.searchParams.get("format"), "json");
+});
+
+test("comma-separated variable lists parse and oversize inputs fail locally", () => {
+  const parsed = parseForecastQuery(
+    { latitude: 52.52, longitude: 13.41, hourly: "temperature_2m,precipitation" },
+    { current: DEFAULT_CURRENT, hourly: DEFAULT_HOURLY, daily: DEFAULT_DAILY },
+  );
+  assert.equal(parsed.ok, true);
+  if (!parsed.ok) {
+    return;
+  }
+  assert.deepEqual(parsed.query.hourly, ["temperature_2m", "precipitation"]);
+
+  const tooMany = parseForecastQuery(
+    {
+      latitude: 52.52,
+      longitude: 13.41,
+      hourly: Array.from({ length: MAX_VARIABLES + 1 }, (_, i) => `v${i}`),
+    },
+    { current: DEFAULT_CURRENT, hourly: DEFAULT_HOURLY, daily: DEFAULT_DAILY },
+  );
+  assert.equal(tooMany.ok, false);
+  if (tooMany.ok) {
+    return;
+  }
+  assert.equal(tooMany.status, 400);
+  assert.match(tooMany.reason, /at most 50/);
+
+  const longZone = parseForecastQuery(
+    { latitude: 52.52, longitude: 13.41, timezone: "x".repeat(MAX_TIMEZONE + 1) },
+    { current: DEFAULT_CURRENT, hourly: DEFAULT_HOURLY, daily: DEFAULT_DAILY },
+  );
+  assert.equal(longZone.ok, false);
+  if (longZone.ok) {
+    return;
+  }
+  assert.match(longZone.reason, /timezone/);
+});
+
+test("oversized geocode name fails locally", () => {
+  const result = buildGeocodeUrl({ name: "x".repeat(MAX_GEOCODE_NAME + 1) });
+  assert.equal(result instanceof URL, false);
+  if (result instanceof URL) {
+    return;
+  }
+  assert.equal(result.status, 400);
+  assert.match(result.reason, /name must be at most/);
 });

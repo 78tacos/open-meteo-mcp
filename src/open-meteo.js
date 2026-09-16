@@ -37,6 +37,13 @@ const TEMPERATURE_UNITS = new Set(["celsius", "fahrenheit"]);
 const WIND_SPEED_UNITS = new Set(["kmh", "ms", "mph", "kn"]);
 const PRECIPITATION_UNITS = new Set(["mm", "inch"]);
 
+export const MAX_VARIABLES = 50;
+export const MAX_VARIABLE_NAME = 64;
+export const MAX_TIMEZONE = 64;
+export const MAX_GEOCODE_NAME = 200;
+export const MAX_LANGUAGE = 32;
+export const MAX_VARIABLE_LIST_CHARS = MAX_VARIABLES * (MAX_VARIABLE_NAME + 1);
+
 /**
  * @typedef {object} ForecastQuery
  * @property {number} latitude
@@ -94,6 +101,25 @@ const PRECIPITATION_UNITS = new Set(["mm", "inch"]);
  */
 
 /**
+ * @param {string[]} parts
+ * @returns {{ ok: true, list: string[] | null } | { ok: false, reason: string }}
+ */
+function boundedVariableParts(parts) {
+  if (parts.length > MAX_VARIABLES) {
+    return { ok: false, reason: `variable lists must have at most ${MAX_VARIABLES} names` };
+  }
+  for (const part of parts) {
+    if (part.length > MAX_VARIABLE_NAME) {
+      return {
+        ok: false,
+        reason: `variable names must be at most ${MAX_VARIABLE_NAME} characters`,
+      };
+    }
+  }
+  return { ok: true, list: parts.length === 0 ? null : parts };
+}
+
+/**
  * @param {unknown} value
  * @param {string[] | null} fallback
  * @returns {{ ok: true, list: string[] | null } | { ok: false, reason: string }}
@@ -103,13 +129,19 @@ function normalizeVariableList(value, fallback) {
     return { ok: true, list: fallback };
   }
   if (typeof value === "string") {
+    if (value.length > MAX_VARIABLE_LIST_CHARS) {
+      return { ok: false, reason: `variable lists must have at most ${MAX_VARIABLES} names` };
+    }
     const parts = value
       .split(",")
       .map((part) => part.trim())
       .filter(Boolean);
-    return { ok: true, list: parts.length === 0 ? null : parts };
+    return boundedVariableParts(parts);
   }
   if (Array.isArray(value)) {
+    if (value.length > MAX_VARIABLES) {
+      return { ok: false, reason: `variable lists must have at most ${MAX_VARIABLES} names` };
+    }
     const parts = [];
     for (const item of value) {
       if (typeof item !== "string" && typeof item !== "number") {
@@ -120,9 +152,12 @@ function normalizeVariableList(value, fallback) {
         parts.push(part);
       }
     }
-    return { ok: true, list: parts.length === 0 ? null : parts };
+    return boundedVariableParts(parts);
   }
-  return { ok: false, reason: "variable lists must be an array of strings" };
+  return {
+    ok: false,
+    reason: "variable lists must be an array of strings or a comma-separated string",
+  };
 }
 
 /**
@@ -187,6 +222,14 @@ export function parseForecastQuery(input, defaults) {
       ? args.timezone.trim()
       : "auto",
   };
+
+  if (query.timezone.length > MAX_TIMEZONE) {
+    return {
+      ok: false,
+      status: 400,
+      reason: `timezone must be at most ${MAX_TIMEZONE} characters`,
+    };
+  }
 
   if (args.forecast_days !== undefined && args.forecast_days !== null) {
     const days = finiteNumber(args.forecast_days, "forecast_days", 1, 16);
@@ -502,6 +545,13 @@ export function buildGeocodeUrl(input) {
   if (!name) {
     return { ok: false, status: 400, reason: "name is required" };
   }
+  if (name.length > MAX_GEOCODE_NAME) {
+    return {
+      ok: false,
+      status: 400,
+      reason: `name must be at most ${MAX_GEOCODE_NAME} characters`,
+    };
+  }
   let count = 5;
   if (args.count !== undefined && args.count !== null) {
     const parsed = finiteNumber(args.count, "count", 1, 10);
@@ -513,12 +563,21 @@ export function buildGeocodeUrl(input) {
     }
     count = parsed.n;
   }
+  let language = "en";
+  if (typeof args.language === "string" && args.language.trim()) {
+    language = args.language.trim();
+    if (language.length > MAX_LANGUAGE) {
+      return {
+        ok: false,
+        status: 400,
+        reason: `language must be at most ${MAX_LANGUAGE} characters`,
+      };
+    }
+  }
   const url = new URL(GEOCODE_ENDPOINT);
   url.searchParams.set("name", name);
   url.searchParams.set("count", String(count));
-  url.searchParams.set("language", typeof args.language === "string" && args.language.trim()
-    ? args.language.trim()
-    : "en");
+  url.searchParams.set("language", language);
   url.searchParams.set("format", "json");
   return url;
 }

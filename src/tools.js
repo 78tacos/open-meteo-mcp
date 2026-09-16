@@ -2,6 +2,12 @@ import {
   geocodeLocation,
   getCurrentWeather,
   getForecast,
+  MAX_GEOCODE_NAME,
+  MAX_LANGUAGE,
+  MAX_TIMEZONE,
+  MAX_VARIABLE_LIST_CHARS,
+  MAX_VARIABLE_NAME,
+  MAX_VARIABLES,
 } from "./open-meteo.js";
 
 const LATITUDE = {
@@ -19,15 +25,22 @@ const LONGITUDE = {
 };
 
 const VARIABLE_LIST = {
-  type: "array",
-  items: { type: "string" },
+  oneOf: [
+    {
+      type: "array",
+      items: { type: "string", maxLength: MAX_VARIABLE_NAME },
+      maxItems: MAX_VARIABLES,
+    },
+    { type: "string", maxLength: MAX_VARIABLE_LIST_CHARS },
+  ],
   description:
-    "Open-Meteo variable names. Omit to use v1 defaults. Pass [] to omit this block from the request.",
+    "Open-Meteo variable names as an array or a comma-separated string. Omit to use v1 defaults. Pass [] or \"\" to omit this block from the request.",
 };
 
 const UNIT_PROPS = {
   timezone: {
     type: "string",
+    maxLength: MAX_TIMEZONE,
     description: 'IANA timezone or "auto". Defaults to auto.',
   },
   forecast_days: {
@@ -97,6 +110,7 @@ export const TOOLS = [
       properties: {
         name: {
           type: "string",
+          maxLength: MAX_GEOCODE_NAME,
           description: "Place name, for example Berlin or San Francisco.",
         },
         count: {
@@ -107,6 +121,7 @@ export const TOOLS = [
         },
         language: {
           type: "string",
+          maxLength: MAX_LANGUAGE,
           description: "IETF language tag for localized names. Default en.",
         },
       },
