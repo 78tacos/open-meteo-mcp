@@ -103,7 +103,7 @@ async function handleMessage(msg) {
         const result = await callTool(name, params.arguments ?? {});
         const isError = !(result && result.ok === true);
         return success(id, {
-          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+          content: [{ type: "text", text: JSON.stringify(result) }],
           isError,
         });
       } catch (err) {
@@ -111,15 +111,11 @@ async function handleMessage(msg) {
           content: [
             {
               type: "text",
-              text: JSON.stringify(
-                {
-                  ok: false,
-                  status: 500,
-                  reason: err instanceof Error ? err.message : "internal error",
-                },
-                null,
-                2,
-              ),
+              text: JSON.stringify({
+                ok: false,
+                status: 500,
+                reason: err instanceof Error ? err.message : "internal error",
+              }),
             },
           ],
           isError: true,
@@ -134,23 +130,34 @@ async function handleMessage(msg) {
   }
 }
 
+let chain = Promise.resolve();
+
+/**
+ * @param {string} line
+ */
+async function onLine(line) {
+  if (!line.trim()) {
+    return;
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(line);
+  } catch {
+    process.stdout.write(`${JSON.stringify(failure(null, -32700, "parse error"))}\n`);
+    return;
+  }
+  const response = await handleMessage(parsed);
+  if (response) {
+    process.stdout.write(`${JSON.stringify(response)}\n`);
+  }
+}
+
 function start() {
   const rl = createInterface({ input: process.stdin, crlfDelay: Infinity });
-  rl.on("line", async (line) => {
-    if (!line.trim()) {
-      return;
-    }
-    let parsed;
-    try {
-      parsed = JSON.parse(line);
-    } catch {
-      process.stdout.write(`${JSON.stringify(failure(null, -32700, "parse error"))}\n`);
-      return;
-    }
-    const response = await handleMessage(parsed);
-    if (response) {
-      process.stdout.write(`${JSON.stringify(response)}\n`);
-    }
+  rl.on("line", (line) => {
+    chain = chain.then(() => onLine(line)).catch((err) => {
+      process.stderr.write(`${err instanceof Error ? err.stack : String(err)}\n`);
+    });
   });
 }
 
