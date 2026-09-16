@@ -4,6 +4,7 @@ import { writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { geocodeLocation, getCurrentWeather, getForecast } from "../src/open-meteo.js";
+import { readLines } from "../test/read-lines.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const BERLIN = { latitude: 52.52, longitude: 13.41 };
@@ -26,27 +27,10 @@ async function mcpCall(message, timeoutMs = 20_000) {
     child.stdin.write(`${JSON.stringify(payload)}\n`);
   };
 
-  const read = () =>
-    new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error("MCP response timed out")), timeoutMs);
-      const onData = (buf) => {
-        const line = buf
-          .toString("utf8")
-          .split("\n")
-          .find((entry) => entry.trim());
-        if (!line) {
-          return;
-        }
-        clearTimeout(timer);
-        child.stdout.off("data", onData);
-        try {
-          resolve(JSON.parse(line));
-        } catch (err) {
-          reject(err);
-        }
-      };
-      child.stdout.on("data", onData);
-    });
+  const read = async () => {
+    const [line] = await readLines(child, 1, timeoutMs);
+    return line;
+  };
 
   try {
     const initPending = read();

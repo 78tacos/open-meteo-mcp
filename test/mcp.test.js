@@ -3,6 +3,7 @@ import { spawn } from "node:child_process";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { readLines } from "./read-lines.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const serverPath = join(root, "src/server.js");
@@ -12,72 +13,11 @@ const serverPath = join(root, "src/server.js");
  * @param {object} message
  * @returns {Promise<object>}
  */
-function rpc(child, message) {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      child.stdout.off("data", onData);
-      reject(new Error("MCP response timed out"));
-    }, 5000);
-    const onData = (buf) => {
-      const text = buf.toString("utf8");
-      const line = text.split("\n").find((entry) => entry.trim());
-      if (!line) {
-        return;
-      }
-      clearTimeout(timer);
-      child.stdout.off("data", onData);
-      try {
-        resolve(JSON.parse(line));
-      } catch (err) {
-        reject(err);
-      }
-    };
-    child.stdout.on("data", onData);
-    child.stdin.write(`${JSON.stringify(message)}\n`);
-  });
-}
-
-/**
- * @param {import("node:child_process").ChildProcessWithoutNullStreams} child
- * @param {number} count
- * @param {number} [timeoutMs]
- * @returns {Promise<object[]>}
- */
-function readLines(child, count, timeoutMs = 5000) {
-  return new Promise((resolve, reject) => {
-    let buf = "";
-    /** @type {object[]} */
-    const lines = [];
-    const timer = setTimeout(() => {
-      child.stdout.off("data", onData);
-      reject(new Error("MCP response timed out"));
-    }, timeoutMs);
-    const onData = (chunk) => {
-      buf += chunk.toString("utf8");
-      let nl;
-      while (lines.length < count && (nl = buf.indexOf("\n")) !== -1) {
-        const raw = buf.slice(0, nl).trim();
-        buf = buf.slice(nl + 1);
-        if (!raw) {
-          continue;
-        }
-        try {
-          lines.push(JSON.parse(raw));
-        } catch (err) {
-          clearTimeout(timer);
-          child.stdout.off("data", onData);
-          reject(err);
-          return;
-        }
-      }
-      if (lines.length >= count) {
-        clearTimeout(timer);
-        child.stdout.off("data", onData);
-        resolve(lines);
-      }
-    };
-    child.stdout.on("data", onData);
-  });
+async function rpc(child, message) {
+  const pending = readLines(child, 1);
+  child.stdin.write(`${JSON.stringify(message)}\n`);
+  const [line] = await pending;
+  return line;
 }
 
 test("MCP initialize then tools/list names the three Open-Meteo tools", async () => {
