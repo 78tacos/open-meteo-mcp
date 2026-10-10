@@ -1,6 +1,6 @@
 # Open-Meteo MCP
 
-An [Agent Plugin](https://cursor.com/docs/plugins) that gives Cursor (and other Agent Plugin clients) Open-Meteo forecast tools. No API key. The MCP server is a Node.js stdio process with no npm dependencies.
+An [Agent Plugin](https://cursor.com/docs/plugins) for Open-Meteo forecasts in Cursor and other Agent Plugin clients. It does not need an API key. The MCP server is a Node.js stdio process with no npm dependencies.
 
 Weather data comes from the public [Open-Meteo forecast API](https://open-meteo.com/en/docs). Place names resolve through the [geocoding API](https://geocoding-api.open-meteo.com/v1/search).
 
@@ -23,9 +23,9 @@ cp -R /path/to/open-meteo-mcp ~/.cursor/plugins/local/open-meteo
 3. Reload Cursor (**Developer: Reload Window**).
 4. Open **Customize** and confirm the Open-Meteo MCP server and the `check-weather` / `compare-forecast` skills.
 
-### Project MCP config (MCP only)
+### Project MCP config
 
-If you only want the tools in this repo, add an absolute path to `.cursor/mcp.json`:
+To use the tools without the plugin folder, add an absolute path to `.cursor/mcp.json`:
 
 ```json
 {
@@ -37,8 +37,6 @@ If you only want the tools in this repo, add an absolute path to `.cursor/mcp.js
   }
 }
 ```
-
-This plugin is not listed on the Cursor Marketplace or cursor.directory.
 
 ## Run and test locally
 
@@ -54,7 +52,7 @@ npm run proof
 
 `npm test` covers query parsing, Open-Meteo JSON mapping, WMO labels, and the MCP `initialize` / `tools/list` handshake. `npm run proof` calls live Open-Meteo for Berlin (52.52, 13.41) through the client and through MCP `tools/call`, then writes [docs/proof.md](docs/proof.md).
 
-`npm start` (or `node src/server.js`) speaks MCP on stdio. Do not type into that process. If stdin is a terminal, the server prints a hint on stderr and exits. Drive it with a client or the proof script.
+`npm start` (or `node src/server.js`) speaks MCP on stdio. If stdin is a terminal, the server prints a hint on stderr and exits. Use a client or `npm run proof`.
 
 ## Tools
 
@@ -66,7 +64,7 @@ npm run proof
 
 Coordinates are WGS84. `timezone` defaults to `auto`. `forecast_days` is 1 to 16. Units are Open-Meteo's: `temperature_unit` (`celsius` / `fahrenheit`), `wind_speed_unit` (`kmh` / `ms` / `mph` / `kn`), `precipitation_unit` (`mm` / `inch`).
 
-If you omit variable lists, v1 sends:
+If you omit variable lists, the server sends:
 
 - current: `temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m`
 - hourly: `temperature_2m,precipitation_probability,precipitation,weather_code,wind_speed_10m`
@@ -120,10 +118,10 @@ src/open-meteo.js    forecast + geocode client
 src/weather-codes.js WMO labels
 src/tools.js         tool schemas
 src/server.js        JSON-RPC stdio
-src/cli.js           same client, for humans and proof
+src/cli.js           command-line client
 ```
 
-v1 is forecast only. No archive, air-quality, or marine endpoints.
+Forecast only: the plugin does not call the archive, air quality, or marine APIs.
 
 `mcp.json` passes `${CURSOR_PLUGIN_ROOT}/src/server.js` to `node` because Cursor does not expand the Agent Plugins `${PLUGIN_ROOT}` placeholder. A project `.cursor/mcp.json` should use an absolute path instead, as in the install section.
 
